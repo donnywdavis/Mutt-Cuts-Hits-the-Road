@@ -8,13 +8,14 @@
 
 #import "PopoverViewController.h"
 #import "Location.h"
+#import <MapKit/MapKit.h>
 
 @interface PopoverViewController () <UITextFieldDelegate>
 
 @property (strong, nonatomic) UITextField *addressOne;
 @property (strong, nonatomic) UITextField *addressTwo;
 
-- (void)validateAddresses:(NSArray *)addresses;
+- (void)validateAddress:(NSString *)address;
 
 @end
 
@@ -23,7 +24,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.view.backgroundColor = [UIColor clearColor];
+//    self.view.backgroundColor = [UIColor clearColor];
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 64, self.view.bounds.size.width, self.view.bounds.size.height)];
     view.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.5];
     
@@ -64,10 +65,11 @@
     if ([textField isEqual:self.addressOne]) {
         [self.addressOne resignFirstResponder];
         [self.addressTwo becomeFirstResponder];
+        [self validateAddress:self.addressOne.text];
         return YES;
     } else if ([textField isEqual:self.addressTwo]) {
         [self.addressTwo resignFirstResponder];
-        [self validateAddresses:@[self.addressOne.text, self.addressTwo.text]];
+        [self validateAddress:self.addressTwo.text];
         return YES;
     }
     
@@ -76,9 +78,23 @@
 
 #pragma mark - Validate Addresses
 
-- (void)validateAddresses:(NSArray *)addresses {
-    NSLog(@"Address 1: %@", addresses[0]);
-    NSLog(@"Address 2: %@", addresses[1]);
+- (void)validateAddress:(NSString *)address {
+    
+    CLGeocoder *geoCoder = [[CLGeocoder alloc] init];
+    [geoCoder geocodeAddressString:address completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+        Location *addressLocation = nil;
+        if (error) {
+            NSLog(@"%@", [error description]);
+        } else {
+            CLPlacemark *placemark = [placemarks lastObject];
+            addressLocation = [[Location alloc] initWithCoord:CLLocationCoordinate2DMake(placemark.location.coordinate.latitude, placemark.location.coordinate.longitude) title:address subtitle:@""];
+            NSLog(@"Coordinates for %@", addressLocation.title);
+            NSLog(@"Latitude: %f", placemark.location.coordinate.latitude);
+            NSLog(@"Longitude: %f", placemark.location.coordinate.longitude);
+        }
+        
+    }];
+    
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

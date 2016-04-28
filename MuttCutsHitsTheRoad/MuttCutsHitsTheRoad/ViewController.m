@@ -74,6 +74,7 @@
     UIPopoverPresentationController *popController = [controller popoverPresentationController];
     popController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     popController.barButtonItem = sender;
+//    [popController.containerView setAlpha:0.5];
     popController.delegate = self;
     
     [self presentViewController:controller animated:YES completion:nil];
