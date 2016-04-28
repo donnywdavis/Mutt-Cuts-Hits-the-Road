@@ -14,6 +14,7 @@
 		414829611CD25B5D00AD9458 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 414829601CD25B5D00AD9458 /* Assets.xcassets */; };
 		414829641CD25B5D00AD9458 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 414829621CD25B5D00AD9458 /* LaunchScreen.storyboard */; };
 		4148296D1CD25E9D00AD9458 /* Location.m in Sources */ = {isa = PBXBuildFile; fileRef = 4148296C1CD25E9D00AD9458 /* Location.m */; };
+		414829701CD286C100AD9458 /* PopoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4148296F1CD286C100AD9458 /* PopoverViewController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -29,6 +30,8 @@
 		414829651CD25B5D00AD9458 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4148296B1CD25E9D00AD9458 /* Location.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Location.h; sourceTree = "<group>"; };
 		4148296C1CD25E9D00AD9458 /* Location.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Location.m; sourceTree = "<group>"; };
+		4148296E1CD286C100AD9458 /* PopoverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopoverViewController.h; sourceTree = "<group>"; };
+		4148296F1CD286C100AD9458 /* PopoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PopoverViewController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +68,8 @@
 				414829581CD25B5D00AD9458 /* AppDelegate.m */,
 				4148295A1CD25B5D00AD9458 /* ViewController.h */,
 				4148295B1CD25B5D00AD9458 /* ViewController.m */,
+				4148296E1CD286C100AD9458 /* PopoverViewController.h */,
+				4148296F1CD286C100AD9458 /* PopoverViewController.m */,
 				4148296B1CD25E9D00AD9458 /* Location.h */,
 				4148296C1CD25E9D00AD9458 /* Location.m */,
 				4148295D1CD25B5D00AD9458 /* Main.storyboard */,
@@ -158,6 +163,7 @@
 				4148295C1CD25B5D00AD9458 /* ViewController.m in Sources */,
 				414829591CD25B5D00AD9458 /* AppDelegate.m in Sources */,
 				4148296D1CD25E9D00AD9458 /* Location.m in Sources */,
+				414829701CD286C100AD9458 /* PopoverViewController.m in Sources */,
 				414829561CD25B5D00AD9458 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
