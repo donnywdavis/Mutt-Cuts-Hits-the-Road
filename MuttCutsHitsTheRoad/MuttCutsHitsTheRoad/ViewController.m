@@ -18,6 +18,7 @@
 @property (strong, nonatomic) NSMutableArray *selectedLocations;
 
 - (IBAction)showPopover:(id)sender;
+- (IBAction)getCurrentLocation:(id)sender;
 
 - (void)dismissMe;
 
@@ -35,6 +36,8 @@
     // Add our bar button items for the navigation controller
     UIBarButtonItem *popoverButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(showPopover:)];
     self.navigationController.navigationBar.topItem.rightBarButtonItem = popoverButton;
+    UIBarButtonItem *currentLocationButton = [[UIBarButtonItem alloc] initWithTitle:@"Current" style:UIBarButtonItemStylePlain target:self action:@selector(getCurrentLocation:)];
+    self.navigationController.navigationBar.topItem.leftBarButtonItem = currentLocationButton;
     
     // Set up the frame constraints for our view
     CGRect theFrame = self.view.frame;
@@ -47,7 +50,6 @@
     self.locationManager = [[CLLocationManager alloc] init];
     self.locationManager.delegate = self;
     [self.locationManager requestAlwaysAuthorization];
-//    [self.locationManager startUpdatingLocation];
     
     // Set up the map view
     self.mapView = [[MKMapView alloc] initWithFrame:theFrame];
@@ -62,6 +64,20 @@
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
+
+- (void)zoomMapToRegionEncapsulatingLocation:(CLLocation *)firstLocation andLocation:(CLLocation *)secondLocation {
+    
+    float latitude = (firstLocation.coordinate.latitude + secondLocation.coordinate.latitude) / 2;
+    float longitude = (firstLocation.coordinate.longitude + secondLocation.coordinate.longitude) / 2;
+    CLLocationDistance distance = [firstLocation distanceFromLocation:secondLocation];
+    CLLocation *centerLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+    //    MKCoordinateSpan span = MKCoordinateSpanMake(100, 100);
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerLocation.coordinate, distance, distance);
+    
+    [self.mapView setRegion:region animated:YES];
+}
+
+#pragma mark - Bar Button Actions
 
 - (IBAction)showPopover:(id)sender {
     
@@ -80,6 +96,14 @@
     popController.delegate = self;
     
     [self presentViewController:controller animated:YES completion:nil];
+}
+
+- (void)getCurrentLocation:(id)sender {
+    [self.locationManager startUpdatingLocation];
+    CLLocation *currentLocation = self.mapView.userLocation.location;
+    Location *current = [[Location alloc] initWithCoord:CLLocationCoordinate2DMake(currentLocation.coordinate.latitude, currentLocation.coordinate.longitude) title:@"Current Location" subtitle:@""];
+    [self.mapView addAnnotation:current];
+    [self.locationManager stopUpdatingLocation];
 }
 
 #pragma mark - UIPopoverPresentationControllerDelegate
