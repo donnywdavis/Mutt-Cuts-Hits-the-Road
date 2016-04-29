@@ -11,10 +11,11 @@
 #import "Location.h"
 #import <MapKit/MapKit.h>
 
-@interface ViewController () <CLLocationManagerDelegate, UIPopoverPresentationControllerDelegate>
+@interface ViewController () <CLLocationManagerDelegate, UIPopoverPresentationControllerDelegate, PopoverLocationSelectionDelegate>
 
 @property (strong, nonatomic) MKMapView *mapView;
 @property (strong, nonatomic) CLLocationManager *locationManager;
+@property (strong, nonatomic) NSMutableArray *selectedLocations;
 
 - (IBAction)showPopover:(id)sender;
 
@@ -28,6 +29,8 @@
     [super viewDidLoad];
     
     self.title = @"Mutts Cutts";
+    
+    self.selectedLocations = [[NSMutableArray alloc] init];
     
     // Add our bar button items for the navigation controller
     UIBarButtonItem *popoverButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(showPopover:)];
@@ -74,10 +77,20 @@
     UIPopoverPresentationController *popController = [controller popoverPresentationController];
     popController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     popController.barButtonItem = sender;
-//    [popController.containerView setAlpha:0.5];
     popController.delegate = self;
     
     [self presentViewController:controller animated:YES completion:nil];
+}
+
+#pragma mark - UIPopoverPresentationControllerDelegate
+
+- (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController {
+    NSLog(@"Hello from should dismiss");
+    return YES;
+}
+
+- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController {
+    NSLog(@"%@", [popoverPresentationController description]);
 }
 
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
@@ -93,6 +106,22 @@
 
 - (void)dismissMe {
     [self dismissViewControllerAnimated:YES completion:nil];
+}
+
+#pragma mark - PopoverLocationSelectionDelegate
+
+- (void)setSelectedLocation:(NSArray *)locations {
+    if (locations) {
+        for (Location *address in locations) {
+            [self.selectedLocations addObject:address];
+        }
+        NSLog(@"Location: %@", [self.selectedLocations description]);
+    } else {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Warning!" message:@"Cannot plot points. Invalid location(s) selected." preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil];
+        [alertController addAction:okButton];
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
 }
 
 @end
