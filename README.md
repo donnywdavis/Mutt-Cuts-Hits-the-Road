@@ -8,7 +8,7 @@ Extend the functionality of the app we built in class today. Allow the user to e
 #### Explorer Mode
 * [x] Add a navigation bar and a + bar button item.
 * [x] When tapped, the + button should open a popover that provides the user with two textfields. Collect a city, state from the user for each textfield and then close the popover
-* [ ] Map those two cities by dropping pins.
+* [x] Map those two cities by dropping pins.
 * [ ] Calculate the line-of-sight distance between those two cities and display it in miles somewhere on the screen. 
 
 ### Adventurer Mode

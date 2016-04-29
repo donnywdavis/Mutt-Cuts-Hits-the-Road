@@ -20,7 +20,7 @@
 - (IBAction)showPopover:(id)sender;
 - (IBAction)getCurrentLocation:(id)sender;
 - (void)convertStringToLocation:(NSString *)addressString;
-- (void)dismissMe;
+- (IBAction)dismissMe:(id)sender;
 
 - (void)zoomMapToRegionEncapsulatingLocation;
 
@@ -63,7 +63,7 @@
     
     [self.locationManager startUpdatingLocation];
     [self convertStringToLocation:@"Raleigh, NC"];
-    [self convertStringToLocation:@"Durham, NC"];
+    [self convertStringToLocation:@"Chattanooga, TN"];
 
 }
 
@@ -92,24 +92,39 @@
 }
 
 - (void)zoomMapToRegionEncapsulatingLocation {
-    NSLog(@"Count: %lu", (unsigned long)self.selectedLocations.count);
     if (self.selectedLocations.count >= 2) {
         CLLocation *location1 = [[CLLocation alloc] initWithLatitude:self.selectedLocations[0].coordinate.latitude longitude:self.selectedLocations[0].coordinate.longitude];
         CLLocation *location2 = [[CLLocation alloc] initWithLatitude:self.selectedLocations[1].coordinate.latitude longitude:self.selectedLocations[1].coordinate.longitude];
         float latitude = (location1.coordinate.latitude + location2.coordinate.latitude) / 2;
         float longitude = (location1.coordinate.longitude + location2.coordinate.longitude) / 2;
         CLLocationDistance distance = [location1 distanceFromLocation:location2];
+        NSLog(@"Distance in miles: %f", (distance / 1000.0) * 0.62137);
         CLLocation *centerLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerLocation.coordinate, distance, distance);
-        NSLog(@"latitude: %f", latitude);
-        NSLog(@"longitude: %f", longitude);
         [self.mapView setRegion:[self.mapView regionThatFits:region] animated:YES];
+        
+        
+        CGRect distanceFrame = self.view.frame;
+        distanceFrame.origin.x = 20;
+        distanceFrame.origin.y = 84;
+        distanceFrame.size.height = 50;
+        distanceFrame.size.width = self.view.frame.size.width * 0.9;
+        UIView *distanceView = [[UIView alloc] initWithFrame:distanceFrame];
+        distanceView.backgroundColor = [UIColor colorWithWhite:0.6 alpha:0.7];
+        
+        UILabel *distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, distanceView.frame.size.width, distanceView.frame.size.height)];
+        distanceLabel.text = [NSString stringWithFormat:@"Line of sight distance: %f", (distance / 1000.0) * 0.62137];
+        distanceLabel.textColor = [UIColor blackColor];
+        distanceLabel.textAlignment = NSTextAlignmentCenter;
+        [distanceView addSubview:distanceLabel];
+        
+        [self.view addSubview:distanceView];
     }
 }
 
 #pragma mark - Bar Button Actions
 
-- (void)dismissMe {
+- (IBAction)dismissMe:(id)sender {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -158,7 +173,7 @@
 
 - (UIViewController *)presentationController:(UIPresentationController *)controller viewControllerForAdaptivePresentationStyle:(UIModalPresentationStyle)style {
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:controller.presentedViewController];
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissMe)];
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissMe:)];
     navController.navigationBar.topItem.rightBarButtonItem = doneButton;
     return navController;
 }
