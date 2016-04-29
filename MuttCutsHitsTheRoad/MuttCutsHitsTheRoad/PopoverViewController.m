@@ -8,6 +8,7 @@
 
 #import "PopoverViewController.h"
 #import <MapKit/MapKit.h>
+#import "ValidateForm.h"
 
 @interface PopoverViewController () <UITextFieldDelegate>
 
@@ -15,7 +16,10 @@
 @property (strong, nonatomic) UITextField *addressTwo;
 @property (strong, nonatomic) NSMutableArray *locations;
 
+@property (strong, nonatomic) ValidateForm *validateForm;
+
 - (void)validateAddresses:(NSArray *)addresses;
+- (void)displayErrorForTitle:(NSString *)title message:(NSString *)message;
 
 @end
 
@@ -24,6 +28,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.validateForm = [[ValidateForm alloc] init];
     self.locations = [[NSMutableArray alloc] init];
     
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 64, self.view.bounds.size.width, self.view.bounds.size.height)];
@@ -56,10 +61,7 @@
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    [self.delegate popoverPresentationControllerDidDismissPopover:self.popoverPresentationController];
-//    if (self.locations.count < 2) {
-//        self.locations = nil;
-//    }
+//    [self.delegate popoverPresentationControllerDidDismissPopover:self.popoverPresentationController];
 //    [self.delegate setSelectedLocation:self.locations];
 }
 
@@ -72,13 +74,24 @@
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     if ([textField isEqual:self.addressOne]) {
-        [self.addressOne resignFirstResponder];
-        [self.addressTwo becomeFirstResponder];
-        return YES;
+        if ([self.validateForm isAddressValid:textField.text]) {
+            [self.locations addObject:textField.text];
+            [self.addressOne resignFirstResponder];
+            [self.addressTwo becomeFirstResponder];
+            return YES;
+        } else {
+            [self displayErrorForTitle:@"Error" message:@"Invalid city, state entered"];
+        }
+        
     } else if ([textField isEqual:self.addressTwo]) {
-        [self.addressTwo resignFirstResponder];
-        [self validateAddresses:@[self.addressOne.text, self.addressTwo.text]];
-        return YES;
+        if ([self.validateForm isAddressValid:textField.text]) {
+            [self.locations addObject:textField.text];
+            [self.addressTwo resignFirstResponder];
+            [self dismissViewControllerAnimated:YES completion:nil];
+            return YES;
+        } else {
+            [self displayErrorForTitle:@"Error" message:@"Invalid city, state entered"];
+        }
     }
     
     return NO;
@@ -89,28 +102,15 @@
 - (void)validateAddresses:(NSArray *)addresses {
     [self.locations addObject:addresses[0]];
     [self.locations addObject:addresses[1]];
-//    [self.delegate setSelectedLocation:self.locations];
-//    int index = 0;
-//    while (index < addresses.count) {
-//        CLGeocoder *geoCoder = [[CLGeocoder alloc] init];
-//        [geoCoder geocodeAddressString:addresses[index] completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
-//            Location *addressLocation = nil;
-//            if (error) {
-//                NSLog(@"%@", [error description]);
-//            } else {
-//                CLPlacemark *placemark = [placemarks lastObject];
-//                addressLocation = [[Location alloc] initWithCoord:CLLocationCoordinate2DMake(placemark.location.coordinate.latitude, placemark.location.coordinate.longitude) title:addresses[index] subtitle:@""];
-//                [self.locations addObject:addressLocation];
-//                NSLog(@"Coordinates for %@", addressLocation.title);
-//                NSLog(@"Latitude: %f", placemark.location.coordinate.latitude);
-//                NSLog(@"Longitude: %f", placemark.location.coordinate.longitude);
-//            }
-//        
-//        }];
-//        index += 1;
-//    }
     
-    [self dismissViewControllerAnimated:YES completion:nil];
+    [[self presentingViewController] dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)displayErrorForTitle:(NSString *)title message:(NSString *)message {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil];
+    [alertController addAction:okButton];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 @end

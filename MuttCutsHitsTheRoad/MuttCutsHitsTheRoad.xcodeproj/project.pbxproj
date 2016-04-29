@@ -15,6 +15,7 @@
 		414829641CD25B5D00AD9458 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 414829621CD25B5D00AD9458 /* LaunchScreen.storyboard */; };
 		4148296D1CD25E9D00AD9458 /* Location.m in Sources */ = {isa = PBXBuildFile; fileRef = 4148296C1CD25E9D00AD9458 /* Location.m */; };
 		414829701CD286C100AD9458 /* PopoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4148296F1CD286C100AD9458 /* PopoverViewController.m */; };
+		41AED90E1CD3E023004C7B4D /* ValidateForm.m in Sources */ = {isa = PBXBuildFile; fileRef = 41AED90D1CD3E023004C7B4D /* ValidateForm.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +33,8 @@
 		4148296C1CD25E9D00AD9458 /* Location.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Location.m; sourceTree = "<group>"; };
 		4148296E1CD286C100AD9458 /* PopoverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PopoverViewController.h; sourceTree = "<group>"; };
 		4148296F1CD286C100AD9458 /* PopoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PopoverViewController.m; sourceTree = "<group>"; };
+		41AED90C1CD3E023004C7B4D /* ValidateForm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ValidateForm.h; sourceTree = "<group>"; };
+		41AED90D1CD3E023004C7B4D /* ValidateForm.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ValidateForm.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,6 +73,8 @@
 				4148295B1CD25B5D00AD9458 /* ViewController.m */,
 				4148296E1CD286C100AD9458 /* PopoverViewController.h */,
 				4148296F1CD286C100AD9458 /* PopoverViewController.m */,
+				41AED90C1CD3E023004C7B4D /* ValidateForm.h */,
+				41AED90D1CD3E023004C7B4D /* ValidateForm.m */,
 				4148296B1CD25E9D00AD9458 /* Location.h */,
 				4148296C1CD25E9D00AD9458 /* Location.m */,
 				4148295D1CD25B5D00AD9458 /* Main.storyboard */,
@@ -163,6 +168,7 @@
 				4148295C1CD25B5D00AD9458 /* ViewController.m in Sources */,
 				414829591CD25B5D00AD9458 /* AppDelegate.m in Sources */,
 				4148296D1CD25E9D00AD9458 /* Location.m in Sources */,
+				41AED90E1CD3E023004C7B4D /* ValidateForm.m in Sources */,
 				414829701CD286C100AD9458 /* PopoverViewController.m in Sources */,
 				414829561CD25B5D00AD9458 /* main.m in Sources */,
 			);
@@ -315,6 +321,7 @@
 				4148296A1CD25B5D00AD9458 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
