@@ -15,12 +15,14 @@
 
 @property (strong, nonatomic) MKMapView *mapView;
 @property (strong, nonatomic) CLLocationManager *locationManager;
-@property (strong, nonatomic) NSMutableArray *selectedLocations;
+@property (strong, nonatomic) NSMutableArray<Location *> *selectedLocations;
 
 - (IBAction)showPopover:(id)sender;
 - (IBAction)getCurrentLocation:(id)sender;
 - (void)convertStringToLocation:(NSString *)addressString;
 - (void)dismissMe;
+
+- (void)zoomMapToRegionEncapsulatingLocation;
 
 @end
 
@@ -59,6 +61,7 @@
     // Add the map view to our main view
     [self.view addSubview:self.mapView];
     
+    [self.locationManager startUpdatingLocation];
     [self convertStringToLocation:@"Raleigh, NC"];
     [self convertStringToLocation:@"Durham, NC"];
 
@@ -79,6 +82,8 @@
             CLPlacemark *placemark = [placemarks lastObject];
             addressLocation = [[Location alloc] initWithCoord:CLLocationCoordinate2DMake(placemark.location.coordinate.latitude, placemark.location.coordinate.longitude) title:placemark.locality subtitle:@""];
             [self.mapView addAnnotation:addressLocation];
+            [self.selectedLocations addObject:addressLocation];
+            [self zoomMapToRegionEncapsulatingLocation];
             NSLog(@"Coordinates for %@", addressLocation.title);
             NSLog(@"Latitude: %f", placemark.location.coordinate.latitude);
             NSLog(@"Longitude: %f", placemark.location.coordinate.longitude);
@@ -86,16 +91,20 @@
     }];
 }
 
-- (void)zoomMapToRegionEncapsulatingLocation:(CLLocation *)firstLocation andLocation:(CLLocation *)secondLocation {
-    
-    float latitude = (firstLocation.coordinate.latitude + secondLocation.coordinate.latitude) / 2;
-    float longitude = (firstLocation.coordinate.longitude + secondLocation.coordinate.longitude) / 2;
-    CLLocationDistance distance = [firstLocation distanceFromLocation:secondLocation];
-    CLLocation *centerLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
-    //    MKCoordinateSpan span = MKCoordinateSpanMake(100, 100);
-    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerLocation.coordinate, distance, distance);
-    
-    [self.mapView setRegion:region animated:YES];
+- (void)zoomMapToRegionEncapsulatingLocation {
+    NSLog(@"Count: %lu", (unsigned long)self.selectedLocations.count);
+    if (self.selectedLocations.count >= 2) {
+        CLLocation *location1 = [[CLLocation alloc] initWithLatitude:self.selectedLocations[0].coordinate.latitude longitude:self.selectedLocations[0].coordinate.longitude];
+        CLLocation *location2 = [[CLLocation alloc] initWithLatitude:self.selectedLocations[1].coordinate.latitude longitude:self.selectedLocations[1].coordinate.longitude];
+        float latitude = (location1.coordinate.latitude + location2.coordinate.latitude) / 2;
+        float longitude = (location1.coordinate.longitude + location2.coordinate.longitude) / 2;
+        CLLocationDistance distance = [location1 distanceFromLocation:location2];
+        CLLocation *centerLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
+        MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerLocation.coordinate, distance, distance);
+        NSLog(@"latitude: %f", latitude);
+        NSLog(@"longitude: %f", longitude);
+        [self.mapView setRegion:[self.mapView regionThatFits:region] animated:YES];
+    }
 }
 
 #pragma mark - Bar Button Actions
@@ -119,6 +128,7 @@
     popController.permittedArrowDirections = UIPopoverArrowDirectionAny;
     popController.barButtonItem = sender;
     popController.delegate = self;
+    popController.sourceView = sender;
     
     [self presentViewController:controller animated:YES completion:nil];
 }
@@ -148,7 +158,7 @@
 
 - (UIViewController *)presentationController:(UIPresentationController *)controller viewControllerForAdaptivePresentationStyle:(UIModalPresentationStyle)style {
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:controller.presentedViewController];
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(dismissMe)];
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissMe)];
     navController.navigationBar.topItem.rightBarButtonItem = doneButton;
     return navController;
 }
