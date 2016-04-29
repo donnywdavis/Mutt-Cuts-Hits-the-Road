@@ -11,7 +11,7 @@
 #import "Location.h"
 #import <MapKit/MapKit.h>
 
-@interface ViewController () <CLLocationManagerDelegate, UIPopoverPresentationControllerDelegate, PopoverLocationSelectionDelegate>
+@interface ViewController () <CLLocationManagerDelegate>
 
 @property (strong, nonatomic) MKMapView *mapView;
 @property (strong, nonatomic) CLLocationManager *locationManager;
@@ -19,7 +19,7 @@
 
 - (IBAction)showPopover:(id)sender;
 - (IBAction)getCurrentLocation:(id)sender;
-
+- (void)convertStringToLocation:(NSString *)addressString;
 - (void)dismissMe;
 
 @end
@@ -58,11 +58,32 @@
     
     // Add the map view to our main view
     [self.view addSubview:self.mapView];
+    
+    [self convertStringToLocation:@"Raleigh, NC"];
+    [self convertStringToLocation:@"Durham, NC"];
+
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+- (void)convertStringToLocation:(NSString *)addressString {
+    CLGeocoder *geoCoder = [[CLGeocoder alloc] init];
+    __block Location *addressLocation = nil;
+    [geoCoder geocodeAddressString:addressString completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+        if (error) {
+            NSLog(@"%@", [error description]);
+        } else {
+            CLPlacemark *placemark = [placemarks lastObject];
+            addressLocation = [[Location alloc] initWithCoord:CLLocationCoordinate2DMake(placemark.location.coordinate.latitude, placemark.location.coordinate.longitude) title:placemark.locality subtitle:@""];
+            [self.mapView addAnnotation:addressLocation];
+            NSLog(@"Coordinates for %@", addressLocation.title);
+            NSLog(@"Latitude: %f", placemark.location.coordinate.latitude);
+            NSLog(@"Longitude: %f", placemark.location.coordinate.longitude);
+        }
+    }];
 }
 
 - (void)zoomMapToRegionEncapsulatingLocation:(CLLocation *)firstLocation andLocation:(CLLocation *)secondLocation {
@@ -78,6 +99,10 @@
 }
 
 #pragma mark - Bar Button Actions
+
+- (void)dismissMe {
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
 
 - (IBAction)showPopover:(id)sender {
     
@@ -128,24 +153,22 @@
     return navController;
 }
 
-- (void)dismissMe {
-    [self dismissViewControllerAnimated:YES completion:nil];
-}
-
 #pragma mark - PopoverLocationSelectionDelegate
 
-- (void)setSelectedLocation:(NSArray *)locations {
-    if (locations) {
-        for (Location *address in locations) {
-            [self.selectedLocations addObject:address];
-        }
-        NSLog(@"Location: %@", [self.selectedLocations description]);
-    } else {
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Warning!" message:@"Cannot plot points. Invalid location(s) selected." preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil];
-        [alertController addAction:okButton];
-        [self presentViewController:alertController animated:YES completion:nil];
-    }
-}
+//- (void)setSelectedLocation:(NSArray *)locations {
+//    if (locations) {
+//        for (Location *address in locations) {
+//            [self.selectedLocations addObject:address];
+//        }
+//        NSLog(@"Location: %@", [self.selectedLocations description]);
+//    } else {
+//        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Warning!" message:@"Cannot plot points. Invalid location(s) selected." preferredStyle:UIAlertControllerStyleAlert];
+//        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil];
+//        [alertController addAction:okButton];
+//        [self presentViewController:alertController animated:YES completion:nil];
+//    }
+//}
+
+#pragma mark - CLLocationManagerDelegate
 
 @end

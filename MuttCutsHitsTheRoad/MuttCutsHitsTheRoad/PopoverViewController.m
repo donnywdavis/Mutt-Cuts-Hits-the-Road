@@ -56,10 +56,11 @@
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    if (self.locations.count < 2) {
-        self.locations = nil;
-    }
-    [self.delegate setSelectedLocation:self.locations];
+    [self.delegate popoverPresentationControllerDidDismissPopover:self.popoverPresentationController];
+//    if (self.locations.count < 2) {
+//        self.locations = nil;
+//    }
+//    [self.delegate setSelectedLocation:self.locations];
 }
 
 - (void)didReceiveMemoryWarning {
