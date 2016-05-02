@@ -11,16 +11,20 @@
 #import "Location.h"
 #import <MapKit/MapKit.h>
 
-@interface ViewController () <CLLocationManagerDelegate>
+@interface ViewController () <CLLocationManagerDelegate, UIPopoverPresentationControllerDelegate>
 
 @property (strong, nonatomic) MKMapView *mapView;
 @property (strong, nonatomic) CLLocationManager *locationManager;
 @property (strong, nonatomic) NSMutableArray<Location *> *selectedLocations;
 
+@property (strong, nonatomic) PopoverViewController *controller;
+@property (strong, nonatomic) UIPopoverPresentationController *popController;
+
 - (IBAction)showPopover:(id)sender;
 - (IBAction)getCurrentLocation:(id)sender;
 - (void)convertStringToLocation:(NSString *)addressString;
-- (IBAction)dismissMe:(id)sender;
+- (IBAction)dismissPopover:(id)sender;
+- (IBAction)cancelPopover:(id)sender;
 
 - (void)zoomMapToRegionEncapsulatingLocation;
 
@@ -61,9 +65,7 @@
     // Add the map view to our main view
     [self.view addSubview:self.mapView];
     
-    [self.locationManager startUpdatingLocation];
-    [self convertStringToLocation:@"Raleigh, NC"];
-    [self convertStringToLocation:@"Chattanooga, TN"];
+//    [self.locationManager startUpdatingLocation];
 
 }
 
@@ -75,18 +77,16 @@
 - (void)convertStringToLocation:(NSString *)addressString {
     CLGeocoder *geoCoder = [[CLGeocoder alloc] init];
     __block Location *addressLocation = nil;
+    __block ViewController *weakSelf = self;
     [geoCoder geocodeAddressString:addressString completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
         if (error) {
             NSLog(@"%@", [error description]);
         } else {
             CLPlacemark *placemark = [placemarks lastObject];
             addressLocation = [[Location alloc] initWithCoord:CLLocationCoordinate2DMake(placemark.location.coordinate.latitude, placemark.location.coordinate.longitude) title:placemark.locality subtitle:@""];
-            [self.mapView addAnnotation:addressLocation];
-            [self.selectedLocations addObject:addressLocation];
-            [self zoomMapToRegionEncapsulatingLocation];
-            NSLog(@"Coordinates for %@", addressLocation.title);
-            NSLog(@"Latitude: %f", placemark.location.coordinate.latitude);
-            NSLog(@"Longitude: %f", placemark.location.coordinate.longitude);
+            [weakSelf.mapView addAnnotation:addressLocation];
+            [weakSelf.selectedLocations addObject:addressLocation];
+            [weakSelf zoomMapToRegionEncapsulatingLocation];
         }
     }];
 }
@@ -98,7 +98,6 @@
         float latitude = (location1.coordinate.latitude + location2.coordinate.latitude) / 2;
         float longitude = (location1.coordinate.longitude + location2.coordinate.longitude) / 2;
         CLLocationDistance distance = [location1 distanceFromLocation:location2];
-        NSLog(@"Distance in miles: %f", (distance / 1000.0) * 0.62137);
         CLLocation *centerLocation = [[CLLocation alloc] initWithLatitude:latitude longitude:longitude];
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerLocation.coordinate, distance, distance);
         [self.mapView setRegion:[self.mapView regionThatFits:region] animated:YES];
@@ -119,33 +118,42 @@
         [distanceView addSubview:distanceLabel];
         
         [self.view addSubview:distanceView];
+        [self.selectedLocations removeAllObjects];
     }
 }
 
 #pragma mark - Bar Button Actions
 
-- (IBAction)dismissMe:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:nil];
+- (IBAction)dismissPopover:(id)sender {
+    UITextField *firstAddress = [self.controller.view viewWithTag:1];
+    UITextField *secondAddress = [self.controller.view viewWithTag:2];
+    [self convertStringToLocation:firstAddress.text];
+    [self convertStringToLocation:secondAddress.text];
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (IBAction)cancelPopover:(id)sender {
+    [self.controller dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)showPopover:(id)sender {
     
     // grab the view controller we want to show
-    PopoverViewController *controller = [[PopoverViewController alloc] init];
+    self.controller = [[PopoverViewController alloc] init];
     
     // present the controller
     // on iPad, this will be a Popover
     // on iPhone, this will be an action sheet
-    controller.modalPresentationStyle = UIModalPresentationPopover;
+    self.controller.modalPresentationStyle = UIModalPresentationPopover;
     
     // configure the Popover presentation controller
-    UIPopoverPresentationController *popController = [controller popoverPresentationController];
-    popController.permittedArrowDirections = UIPopoverArrowDirectionAny;
-    popController.barButtonItem = sender;
-    popController.delegate = self;
-    popController.sourceView = sender;
+    self.popController = [self.controller popoverPresentationController];
+    self.popController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+    self.popController.barButtonItem = sender;
+    self.popController.delegate = self;
+    self.popController.sourceView = sender;
     
-    [self presentViewController:controller animated:YES completion:nil];
+    [self presentViewController:self.controller animated:YES completion:nil];
 }
 
 - (void)getCurrentLocation:(id)sender {
@@ -159,12 +167,7 @@
 #pragma mark - UIPopoverPresentationControllerDelegate
 
 - (BOOL)popoverPresentationControllerShouldDismissPopover:(UIPopoverPresentationController *)popoverPresentationController {
-    NSLog(@"Hello from should dismiss");
     return YES;
-}
-
-- (void)popoverPresentationControllerDidDismissPopover:(UIPopoverPresentationController *)popoverPresentationController {
-    NSLog(@"%@", [popoverPresentationController description]);
 }
 
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
@@ -173,25 +176,11 @@
 
 - (UIViewController *)presentationController:(UIPresentationController *)controller viewControllerForAdaptivePresentationStyle:(UIModalPresentationStyle)style {
     UINavigationController *navController = [[UINavigationController alloc] initWithRootViewController:controller.presentedViewController];
-    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissMe:)];
+    UIBarButtonItem *doneButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(dismissPopover:)];
     navController.navigationBar.topItem.rightBarButtonItem = doneButton;
+    UIBarButtonItem *cancelButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(cancelPopover:)];
+    navController.navigationBar.topItem.leftBarButtonItem = cancelButton;
     return navController;
-}
-
-#pragma mark - PopoverLocationSelectionDelegate
-
-- (void)setSelectedLocation:(NSArray *)locations {
-    if (locations) {
-        for (Location *address in locations) {
-            [self.selectedLocations addObject:address];
-        }
-        NSLog(@"Location: %@", [self.selectedLocations description]);
-    } else {
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Warning!" message:@"Cannot plot points. Invalid location(s) selected." preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil];
-        [alertController addAction:okButton];
-        [self presentViewController:alertController animated:YES completion:nil];
-    }
 }
 
 #pragma mark - CLLocationManagerDelegate

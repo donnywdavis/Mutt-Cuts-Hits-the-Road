@@ -9,14 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "Location.h"
 
-@protocol PopoverLocationSelectionDelegate
-
-- (void)setSelectedLocation:(NSArray *)locations;
-
-@end
-
 @interface PopoverViewController : UIViewController
-
-@property (strong, nonatomic) id<PopoverLocationSelectionDelegate> delegate;
 
 @end

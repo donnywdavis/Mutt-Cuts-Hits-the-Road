@@ -18,7 +18,6 @@
 
 @property (strong, nonatomic) ValidateForm *validateForm;
 
-- (void)validateAddresses:(NSArray *)addresses;
 - (void)displayErrorForTitle:(NSString *)title message:(NSString *)message;
 
 @end
@@ -43,6 +42,7 @@
     self.addressOne.placeholder = @"City, St";
     self.addressOne.returnKeyType = UIReturnKeyNext;
     self.addressOne.enablesReturnKeyAutomatically = YES;
+    self.addressOne.tag = 1;
     self.addressOne.delegate = self;
     
     self.addressTwo = [[UITextField alloc] initWithFrame:textFieldFrameTwo];
@@ -51,6 +51,7 @@
     self.addressTwo.placeholder = @"City, St";
     self.addressTwo.returnKeyType = UIReturnKeyRoute;
     self.addressTwo.enablesReturnKeyAutomatically = YES;
+    self.addressTwo.tag = 2;
     self.addressTwo.delegate = self;
     
     [view addSubview:self.addressOne];
@@ -58,11 +59,6 @@
     [self.view addSubview:view];
     
     [self.addressOne becomeFirstResponder];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-//    [self.delegate popoverPresentationControllerDidDismissPopover:self.popoverPresentationController];
-    [self.delegate setSelectedLocation:self.locations];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -87,7 +83,6 @@
         if ([self.validateForm isAddressValid:textField.text]) {
             [self.locations addObject:textField.text];
             [self.addressTwo resignFirstResponder];
-            [self dismissViewControllerAnimated:YES completion:nil];
             return YES;
         } else {
             [self displayErrorForTitle:@"Error" message:@"Invalid city, state entered"];
@@ -97,14 +92,7 @@
     return NO;
 }
 
-#pragma mark - Validate Addresses
-
-- (void)validateAddresses:(NSArray *)addresses {
-    [self.locations addObject:addresses[0]];
-    [self.locations addObject:addresses[1]];
-    
-    [[self presentingViewController] dismissViewControllerAnimated:YES completion:nil];
-}
+#pragma mark - Error Handling
 
 - (void)displayErrorForTitle:(NSString *)title message:(NSString *)message {
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
