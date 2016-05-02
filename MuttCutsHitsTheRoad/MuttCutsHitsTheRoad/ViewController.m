@@ -180,19 +180,19 @@
 
 #pragma mark - PopoverLocationSelectionDelegate
 
-//- (void)setSelectedLocation:(NSArray *)locations {
-//    if (locations) {
-//        for (Location *address in locations) {
-//            [self.selectedLocations addObject:address];
-//        }
-//        NSLog(@"Location: %@", [self.selectedLocations description]);
-//    } else {
-//        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Warning!" message:@"Cannot plot points. Invalid location(s) selected." preferredStyle:UIAlertControllerStyleAlert];
-//        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil];
-//        [alertController addAction:okButton];
-//        [self presentViewController:alertController animated:YES completion:nil];
-//    }
-//}
+- (void)setSelectedLocation:(NSArray *)locations {
+    if (locations) {
+        for (Location *address in locations) {
+            [self.selectedLocations addObject:address];
+        }
+        NSLog(@"Location: %@", [self.selectedLocations description]);
+    } else {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"Warning!" message:@"Cannot plot points. Invalid location(s) selected." preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil];
+        [alertController addAction:okButton];
+        [self presentViewController:alertController animated:YES completion:nil];
+    }
+}
 
 #pragma mark - CLLocationManagerDelegate
 

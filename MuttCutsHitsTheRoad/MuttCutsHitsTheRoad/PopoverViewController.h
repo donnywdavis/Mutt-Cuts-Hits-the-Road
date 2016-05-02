@@ -17,6 +17,6 @@
 
 @interface PopoverViewController : UIViewController
 
-//@property (strong, nonatomic) id<PopoverLocationSelectionDelegate> delegate;
+@property (strong, nonatomic) id<PopoverLocationSelectionDelegate> delegate;
 
 @end

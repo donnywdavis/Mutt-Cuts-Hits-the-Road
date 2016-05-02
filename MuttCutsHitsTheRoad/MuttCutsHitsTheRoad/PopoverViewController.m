@@ -62,7 +62,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
 //    [self.delegate popoverPresentationControllerDidDismissPopover:self.popoverPresentationController];
-//    [self.delegate setSelectedLocation:self.locations];
+    [self.delegate setSelectedLocation:self.locations];
 }
 
 - (void)didReceiveMemoryWarning {
