@@ -17,6 +17,9 @@
 @property (strong, nonatomic) CLLocationManager *locationManager;
 @property (strong, nonatomic) NSMutableArray<Location *> *selectedLocations;
 
+@property (strong, nonatomic) UIView *distanceView;
+@property (strong, nonatomic) UILabel *distanceLabel;
+
 @property (strong, nonatomic) PopoverViewController *controller;
 @property (strong, nonatomic) UIPopoverPresentationController *popController;
 
@@ -52,6 +55,19 @@
     theFrame.size.height -= 64;
     theFrame.size.width -= 0;
     
+    CGRect distanceFrame = self.view.frame;
+    distanceFrame.origin.x = 20;
+    distanceFrame.origin.y = 84;
+    distanceFrame.size.height = 50;
+    distanceFrame.size.width = self.view.frame.size.width * 0.9;
+    self.distanceView = [[UIView alloc] initWithFrame:distanceFrame];
+    self.distanceView.backgroundColor = [UIColor colorWithWhite:0.7 alpha:0.6];
+    
+    self.distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, self.distanceView.frame.size.width, self.distanceView.frame.size.height)];
+    self.distanceLabel.textColor = [UIColor blackColor];
+    self.distanceLabel.textAlignment = NSTextAlignmentCenter;
+    [self.distanceView addSubview:self.distanceLabel];
+    
     // Let's get authorization to use the users location
     self.locationManager = [[CLLocationManager alloc] init];
     self.locationManager.delegate = self;
@@ -64,6 +80,7 @@
     
     // Add the map view to our main view
     [self.view addSubview:self.mapView];
+    [self.view addSubview:self.distanceView];
     
 //    [self.locationManager startUpdatingLocation];
 
@@ -102,22 +119,7 @@
         MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(centerLocation.coordinate, distance, distance);
         [self.mapView setRegion:[self.mapView regionThatFits:region] animated:YES];
         
-        
-        CGRect distanceFrame = self.view.frame;
-        distanceFrame.origin.x = 20;
-        distanceFrame.origin.y = 84;
-        distanceFrame.size.height = 50;
-        distanceFrame.size.width = self.view.frame.size.width * 0.9;
-        UIView *distanceView = [[UIView alloc] initWithFrame:distanceFrame];
-        distanceView.backgroundColor = [UIColor colorWithWhite:0.6 alpha:0.7];
-        
-        UILabel *distanceLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, distanceView.frame.size.width, distanceView.frame.size.height)];
-        distanceLabel.text = [NSString stringWithFormat:@"Line of sight distance: %f", (distance / 1000.0) * 0.62137];
-        distanceLabel.textColor = [UIColor blackColor];
-        distanceLabel.textAlignment = NSTextAlignmentCenter;
-        [distanceView addSubview:distanceLabel];
-        
-        [self.view addSubview:distanceView];
+        self.distanceLabel.text = [NSString stringWithFormat:@"Line of sight distance: %f", (distance / 1000.0) * 0.62137];
         [self.selectedLocations removeAllObjects];
     }
 }
